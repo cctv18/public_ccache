@@ -159,6 +159,23 @@ jobs:
             ${{ env.CCACHE_KEY }}-${{ runner.os }}-
             ${{ env.CCACHE_KEY }}-
 
+      - name: 拉取公共预置 ccache 缓存
+        if: steps.ccache-restore.outputs.cache-hit != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "未命中 GitHub Actions 缓存，尝试从最新 Release 拉取..."
+          mkdir -p ${{ env.CCACHE_DIR }}
+          FILE_NAME="ccache-${{ env.KERNEL_VERSION }}.${{ env.SUB_VERSION }}.tar.zst"
+          
+          if gh release download ccache-latest -p "$FILE_NAME" -R ${{ github.repository }}; then
+            echo "成功下载 $FILE_NAME，正在解压..."
+            tar -I zstd -xf "$FILE_NAME" -C ${{ env.CCACHE_DIR }}
+            echo "Release ccache 恢复完成！"
+          else
+            echo "Release 中未找到对应的 ccache 文件，将进行全量全新编译..."
+          fi
+
       - name: 清除旧 ccache 缓存
         if: inputs.ccache_update
         env:
@@ -651,8 +668,17 @@ jobs:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ env.CCACHE_KEY }}-${{ runner.os }}-main
 
-      - name: 上传 ZIP 工件
+      - name: 将当前 ccache 打包为归档文件
+        if: always() # 无论编译成功与否，只要生成缓存就尝试打包
+        run: |
+          echo "正在使用 zstd 压缩 ccache 目录..."
+          cd ${{ env.CCACHE_DIR }}
+          tar -I zstd -cf ${{ github.workspace }}/ccache-${{ env.KERNEL_VERSION }}.${{ env.SUB_VERSION }}.tar.zst .
+
+      - name: 上传 ccache 工件 (供 gen_ccache.yml 合并发布)
         uses: actions/upload-artifact@v7
         with:
-          path: ${{ github.workspace }}/kernel_workspace/AnyKernel*.zip
+          name: ccache-${{ env.KERNEL_VERSION }}.${{ env.SUB_VERSION }}
+          path: ${{ github.workspace }}/ccache-${{ env.KERNEL_VERSION }}.${{ env.SUB_VERSION }}.tar.zst
+          retention-days: 1 # 仅作中转使用，1天后自动清理以节省空间
           archive: false

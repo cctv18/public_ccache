@@ -20,6 +20,10 @@ on:
         type: boolean
         default: false
 
+permissions:
+  contents: write
+  actions: write
+
 jobs:
   build_6_1_57:
     uses: ./.github/workflows/fastbuild_6.1.57.yml

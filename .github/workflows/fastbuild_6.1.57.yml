@@ -1,15 +1,15 @@
-name: 加速版构建 6.12.23 欧加真OKI内核
+name: 加速版构建 6.1.57 欧加真OKI内核
 
 env:
   TZ: Asia/Shanghai
-  ANDROID_VERSION: 'android16'
-  KERNEL_VERSION: '6.12'
-  SUB_VERSION: '23'
-  KERNEL_NAME: 'android16-5-ga8f88ad96df3-ab13929693-4k'
-  CCACHE_KEY: ccache-neov5-6.12.23
+  ANDROID_VERSION: 'android14'
+  KERNEL_VERSION: '6.1'
+  SUB_VERSION: '57'
+  KERNEL_NAME: 'android14-11-o-gca13bffobf09'
+  CCACHE_KEY: ccache-neov3-6.1.57
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       ksu_type:
         description: 'KernelSU分支(ReSukiSU/SukiSU Ultra/KernelSU Next/KSU(原版)/无内置KSU,默认ReSukiSU)'
@@ -47,7 +47,7 @@ on:
         type: boolean
         default: 'false'
       bbr_enable:
-        description: "是否启用bbr算法(优化上行数据,对手机日用无太大意义甚至可能负优化;false关闭,true仅加入算法,default启用算法并设为默认)"
+        description: '是否启用bbr算法(优化上行数据,对手机日用无太大意义甚至可能负优化;false关闭,true仅加入算法,default设为默认)'
         required: true
         type: choice
         default: 'false'
@@ -60,8 +60,8 @@ on:
         required: true
         type: boolean
         default: 'false'
-      adios_enable:
-        description: '是否启用ADIOS IO调度器支持(提升IO读写性能)'
+      ssg_enable:
+        description: '是否启用三星SSG IO调度器支持(提升IO读写性能; 在一加12上可能导致bug)'
         required: true
         type: boolean
         default: 'true'
@@ -101,7 +101,7 @@ jobs:
       actions: write
       contents: read
     steps:
-      - name: 安装环境依赖+初始化源码仓库及llvm-clang19工具链
+      - name: 安装环境依赖+初始化源码仓库及llvm-Clang20工具链
         run: |
           rm -rf kernel_workspace
           mkdir kernel_workspace
@@ -114,42 +114,31 @@ jobs:
           sudo apt purge man-db &&
           sudo rm -rf /var/lib/man-db/auto-update &&
           sudo apt update &&
-          sudo apt-get install -y --no-install-recommends binutils python-is-python3 libssl-dev libelf-dev libdw-dev &
+          sudo apt-get install -y --no-install-recommends binutils python-is-python3 libssl-dev libelf-dev ccache &
           #旧版完整指令：（由于经过验证大部分指令已内置于GitHub Action环境中，故进行精简）
-          #sudo apt-get install -y --no-install-recommends curl bison flex make binutils git perl gcc python3 python-is-python3 bc libssl-dev libelf-dev libdw-dev zip unzip ccache
+          #sudo apt-get install -y --no-install-recommends curl bison flex make binutils git perl gcc python3 python-is-python3 bc libssl-dev libelf-dev zip unzip ccache
           
-          #使用最新版ccache v4.12.2（Ubuntu软件仓库的版本并非最新）
-          wget https://github.com/$GITHUB_REPOSITORY/raw/refs/heads/$GITHUB_REF_NAME/lib/ccache-x86-64 -O ccache &&
-          sudo cp -f ./ccache /usr/bin/ccache &&
-          sudo chmod +x /usr/bin/ccache &&
-          rm -f ./ccache &
-          
-          echo "正在克隆源码仓库..."
-          aria2c -s16 -x16 -k1M https://github.com/cctv18/android_kernel_common_oneplus_sm8850/archive/refs/heads/oneplus/sm8850_v_16.0.0_oneplus_15.zip -o common.zip && 
+          echo "正在克隆源码仓库..." &&
+          aria2c -s16 -x16 -k1M https://github.com/cctv18/android_kernel_common_oneplus_sm8650/archive/refs/heads/oneplus/sm8650_u_14.0.0_oneplus12.zip -o common.zip && 
           unzip -q common.zip && 
-          mv "android_kernel_common_oneplus_sm8850-oneplus-sm8850_v_16.0.0_oneplus_15" common &&
+          mv "android_kernel_common_oneplus_sm8650-oneplus-sm8650_u_14.0.0_oneplus12" common &&
           rm -rf common.zip &
           
-          echo "正在克隆llvm-clang19工具链..." &&
-          mkdir -p clang19 &&
-          aria2c -s16 -x16 -k1M https://github.com/cctv18/oneplus_sm8650_toolchain/releases/download/LLVM-Clang19-r536225/clang-r536225.zip -o clang.zip &&
-          unzip -q clang.zip -d clang19 &&
+          echo "正在克隆llvm-Clang20工具链..." &&
+          mkdir -p clang20 &&
+          aria2c -s16 -x16 -k1M https://github.com/cctv18/oneplus_sm8650_toolchain/releases/download/LLVM-Clang20-r547379/clang-r547379.zip -o clang.zip &&
+          unzip -q clang.zip -d clang20 &&
           rm -rf clang.zip &
           
-          echo "正在克隆Rust 1.82.0工具链..." &&
-          mkdir -p rust &&
-          aria2c -s16 -x16 -k1M https://github.com/cctv18/oneplus_sm8650_toolchain/releases/download/LLVM-Clang19-r536225/rust.zip -o rust.zip &&
-          unzip -q rust.zip -d rust &&
-          rm -rf rust.zip &
-          
           echo "正在克隆构建工具..." &&
-          aria2c -s16 -x16 -k1M https://github.com/cctv18/oneplus_sm8650_toolchain/releases/download/LLVM-Clang19-r536225/build-tools.zip -o build-tools.zip &&
+          aria2c -s16 -x16 -k1M https://github.com/cctv18/oneplus_sm8650_toolchain/releases/download/LLVM-Clang20-r547379/build-tools.zip -o build-tools.zip &&
           unzip -q build-tools.zip &&
           rm -rf build-tools.zip &
           
           wait
-          echo "所有源码及llvm-clang19工具链初始化完成！"
-          echo "正在去除 dirty 后缀..."
+          echo "所有源码及llvm-Clang20工具链初始化完成！"
+          echo "正在去除 ABI 保护 & 去除 dirty 后缀..."
+          rm common/android/abi_gki_protected_exports_* || true
           for f in common/scripts/setlocalversion; do
             sed -i 's/ -dirty//g' "$f"
             sed -i '$i res=$(echo "$res" | sed '\''s/-dirty//g'\'')' "$f"
@@ -191,7 +180,7 @@ jobs:
           export CCACHE_COMPILERCHECK="none"
           export CCACHE_BASEDIR="${{ github.workspace }}"
           export CCACHE_NOHASHDIR="true"
-          export CCACHE_NOHARDLINK="true"
+          export CCACHE_HARDLINK="true"
           export CCACHE_DIR="${{ env.CCACHE_DIR }}"
           export CCACHE_MAXSIZE="${{ env.CCACHE_MAXSIZE }}"
           
@@ -318,11 +307,13 @@ jobs:
           if [[ ${{ github.event.inputs.ksu_type }} != "none" ]]; then
             echo "正在添加susfs补丁..."
             git clone --depth=1 https://github.com/cctv18/susfs4oki.git susfs4ksu -b oki-${{ env.ANDROID_VERSION }}-${{ env.KERNEL_VERSION }}
+            wget https://github.com/$GITHUB_REPOSITORY/raw/refs/heads/${{ env.KERNEL_VERSION }}/other_patch/69_hide_stuff.patch -O ./common/69_hide_stuff.patch
             cp ./susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ env.ANDROID_VERSION }}-${{ env.KERNEL_VERSION }}.patch ./common/
             cp ./susfs4ksu/kernel_patches/fs/* ./common/fs/
             cp ./susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
             cd ./common
             patch -p1 < 50_add_susfs_in_gki-${{ env.ANDROID_VERSION }}-${{ env.KERNEL_VERSION }}.patch || true
+            patch -p1 -N -F 3 < 69_hide_stuff.patch || true
             cd ..
           else
             echo "已选择无内置KernelSU模式，跳过susfs配置..."
@@ -341,17 +332,25 @@ jobs:
           cd kernel_workspace
           git clone --depth=1 https://github.com/$GITHUB_REPOSITORY.git -b ${{ env.KERNEL_VERSION }} $GITHUB_ACTOR
           cp ./$GITHUB_ACTOR/zram_patch/001-lz4.patch ./common/
+          cp ./$GITHUB_ACTOR/zram_patch/lz4armv8.S ./common/lib
           cp ./$GITHUB_ACTOR/zram_patch/002-zstd.patch ./common/
           cd ./common
-          patch -p1 < 001-lz4.patch || true
+          git apply -p1 < 001-lz4.patch || true
           patch -p1 < 002-zstd.patch || true
 
       - name: 应用 lz4kd 补丁
         if: inputs.lz4kd_enable
         run: |
           echo "正在添加lz4kd补丁…"
-          cd kernel_workspace/common
-          wget https://github.com/$GITHUB_REPOSITORY/raw/refs/heads/${{ env.KERNEL_VERSION }}/other_patch/lz4kd.patch
+          cd kernel_workspace
+          if [ ! -d "SukiSU_patch" ]; then
+            git clone --depth=1 https://github.com/ShirkNeko/SukiSU_patch.git
+          fi
+          cd common
+          cp -r ../SukiSU_patch/other/zram/lz4k/include/linux/* ./include/linux/
+          cp -r ../SukiSU_patch/other/zram/lz4k/lib/* ./lib
+          cp -r ../SukiSU_patch/other/zram/lz4k/crypto/* ./crypto
+          cp ../SukiSU_patch/other/zram/zram_patch/${{ env.KERNEL_VERSION }}/lz4kd.patch ./
           patch -p1 -F 3 < lz4kd.patch || true
           
       - name: 添加SUSFS 配置项
@@ -384,35 +383,29 @@ jobs:
           if [[ "${{ github.event.inputs.susfs_enable }}" == "false" ]]; then
             echo "CONFIG_KSU_SUSFS=n" >> ./common/arch/arm64/configs/gki_defconfig
           fi
-          # 添加对 Mountify (backslashxx/mountify) 模块的支持
+          #添加对 Mountify (backslashxx/mountify) 模块的支持
           echo "CONFIG_TMPFS_XATTR=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_TMPFS_POSIX_ACL=y" >> ./common/arch/arm64/configs/gki_defconfig
-          if [[ "${{ github.event.inputs.lz4kd_enable }}" == "true" ]]; then
+          if [[ ${{ github.event.inputs.lz4kd_enable }} == 'true' ]]; then
             echo "CONFIG_ZSMALLOC=y" >> ./common/arch/arm64/configs/gki_defconfig
             echo "CONFIG_CRYPTO_LZ4HC=y" >> ./common/arch/arm64/configs/gki_defconfig
             echo "CONFIG_CRYPTO_LZ4K=y" >> ./common/arch/arm64/configs/gki_defconfig
             echo "CONFIG_CRYPTO_LZ4KD=y" >> ./common/arch/arm64/configs/gki_defconfig
             echo "CONFIG_CRYPTO_842=y" >> ./common/arch/arm64/configs/gki_defconfig
-            #以下配置选项用于编译zram模块，开启与否不影响内核编译
-            echo "CONFIG_ZRAM_BACKEND_LZ4HC=y" >> ./common/arch/arm64/configs/gki_defconfig
-            echo "CONFIG_ZRAM_BACKEND_LZ4K=y" >> ./common/arch/arm64/configs/gki_defconfig
-            echo "CONFIG_ZRAM_BACKEND_LZ4KD=y" >> ./common/arch/arm64/configs/gki_defconfig
-            echo "CONFIG_ZRAM_BACKEND_842=y" >> ./common/arch/arm64/configs/gki_defconfig
           fi
           # 开启O2编译优化配置
           echo "CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE=y" >> ./common/arch/arm64/configs/gki_defconfig
-          # 禁用 defconfig 检查
+          #禁用 defconfig 检查
           sed -i 's/check_defconfig//' ./common/build.config.gki
           #跳过将uapi标准头安装到 usr/include 目录的不必要操作，节省编译时间
           echo "CONFIG_HEADERS_INSTALL=n" >> ./common/arch/arm64/configs/gki_defconfig
-          # 6.12内核Rust配置
-          echo "CONFIG_RUST=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_ANDROID_BINDER_IPC_RUST=m" >> ./common/arch/arm64/configs/gki_defconfig
           
       - name: 启用网络功能增强优化配置
         if: inputs.better_net
         run: |
           cd kernel_workspace
+          #启用  BPF 流解析器,实现高性能网络流量处理,增强网络监控和分析能力
+          echo "CONFIG_BPF_STREAM_PARSER=y" >> ./common/arch/arm64/configs/gki_defconfig
           #开启增强 Netfilter 防火墙扩展模块,支持基于地址类型的匹配规则,启用 IP 集合支持,提高防火墙规则灵活性,支持更复杂的流量过滤策略
           echo "CONFIG_NETFILTER_XT_MATCH_ADDRTYPE=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_NETFILTER_XT_SET=y" >> ./common/arch/arm64/configs/gki_defconfig
@@ -483,13 +476,13 @@ jobs:
             fi
           fi
 
-      - name: 启用ADIOS IO调度器
-        if: inputs.adios_enable
+      - name: 启用三星SSG IO调度器
+        if: inputs.ssg_enable
         run: |
-          echo "正在启用ADIOS IO调度器(将截止时间优先调度算法与基于自主学习的自适应延迟控制算法相结合, 降低I/O延迟)…"
+          echo "正在启用三星SSG IO调度器(一加12等极少数机型开启后可能不开机,若出现bug请关闭此项)…"
           cd kernel_workspace
-          echo "CONFIG_MQ_IOSCHED_ADIOS=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_MQ_IOSCHED_DEFAULT_ADIOS=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_MQ_IOSCHED_SSG=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_MQ_IOSCHED_SSG_CGROUP=y" >> ./common/arch/arm64/configs/gki_defconfig
 
       - name: 启用Re-Kernel支持
         if: inputs.rekernel_enable
@@ -497,7 +490,6 @@ jobs:
           echo "正在启用Re-Kernel支持(用于与Freezer,NoActive等软件配合使用,提升冻结后台能力)…"
           cd kernel_workspace
           echo "CONFIG_REKERNEL=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_REKERNEL_NETWORK=y" >> ./common/arch/arm64/configs/gki_defconfig
 
       - name: 启用内核级基带保护
         if: inputs.baseband_guard
@@ -518,41 +510,32 @@ jobs:
             for f in ./common/scripts/setlocalversion; do
               sed -i "\$s|echo \"\\\$res\"|echo \"-${{ github.event.inputs.kernel_suffix }}\"|" "$f"
             done
-            sudo sed -i 's/-4k/-${{ github.event.inputs.KERNEL_SUFFIX }}/g' ./common/arch/arm64/configs/gki_defconfig
           else
             echo "当前内核版本后缀：${{ env.KERNEL_NAME }}"
             for f in ./common/scripts/setlocalversion; do
               sed -i "\$s|echo \"\\\$res\"|echo \"-${{ env.KERNEL_NAME }}\"|" "$f"
             done
-            sudo sed -i 's/-4k/-${{ env.KERNEL_NAME }}/g' ./common/arch/arm64/configs/gki_defconfig
           fi
-          sed -i 's/${scm_version}//' ./common/scripts/setlocalversion
-          echo "CONFIG_LOCALVERSION_AUTO=n" >> ./common/arch/arm64/configs/gki_defconfig
            
       - name: 构建内核
         run: |
           WORKDIR="$(pwd)"
           export PATH="/usr/lib/ccache:$PATH"
-          export PATH="$WORKDIR/kernel_workspace/clang19/bin:$PATH"
+          export PATH="$WORKDIR/kernel_workspace/clang20/bin:$PATH"
           export PATH="$WORKDIR/kernel_workspace/build-tools/bin:$PATH"
-          export PATH="$WORKDIR/kernel_workspace/rust/bin:$PATH"
-          export CLANG_DIR="$WORKDIR/kernel_workspace/clang19/bin"
+          CLANG_DIR="$WORKDIR/kernel_workspace/clang20/bin"
           CLANG_VERSION="$($CLANG_DIR/clang --version | head -n 1)"
           LLD_VERSION="$($CLANG_DIR/ld.lld --version | head -n 1)"
-          RUSTC_VERSION="$(rustc -V 2>/dev/null | head -n1)"
-          BINDGEN_VERSION="$(bindgen --version 2>/dev/null | head -n1)"
           echo "编译器信息:"
           echo "Clang版本: $CLANG_VERSION"
           echo "LLD版本: $LLD_VERSION"
-          echo "Rustc版本: $RUSTC_VERSION"
-          echo "Bindgen版本: $BINDGEN_VERSION"
           pahole_version=$(pahole --version 2>/dev/null | head -n1); [ -z "$pahole_version" ] && echo "pahole版本：未安装" || echo "pahole版本：$pahole_version"
           
           export CCACHE_LOGFILE="${{ github.workspace }}/kernel_workspace/ccache.log"
           export CCACHE_COMPILERCHECK="none"
           export CCACHE_BASEDIR="${{ github.workspace }}"
           export CCACHE_NOHASHDIR="true"
-          export CCACHE_NOHARDLINK="true"
+          export CCACHE_HARDLINK="true"
           export CCACHE_DIR="${{ env.CCACHE_DIR }}"
           export CCACHE_MAXSIZE="3G"
           echo "sloppiness = file_stat_matches,include_file_ctime,include_file_mtime,pch_defines,file_macro,time_macros" >> "$CCACHE_DIR/ccache.conf"
@@ -567,13 +550,12 @@ jobs:
           echo "FAKETIME=$FAKETIME" >> $GITHUB_ENV
           SO_DIR=$(pwd)
           export PRELOAD_LIBS="$SO_DIR/libfakestat.so $SO_DIR/libfaketimeMT.so"
-          export REAL_CLANG_PATH="$WORKDIR/kernel_workspace/clang19/bin/clang"
           #创建 CC (编译器) 包装器
           echo '#!/bin/bash' > cc-wrapper
           echo 'export LD_PRELOAD="'$PRELOAD_LIBS'"' >> cc-wrapper
           echo 'export FAKESTAT="'$FAKESTAT'"' >> cc-wrapper
           echo 'export FAKETIME="'$FAKETIME'"' >> cc-wrapper
-          echo 'ccache $REAL_CLANG_PATH "$@"' >> cc-wrapper
+          echo 'ccache clang "$@"' >> cc-wrapper
           #创建 LD (链接器) 包装器
           echo '#!/bin/bash' > ld-wrapper
           echo 'export LD_PRELOAD="'$PRELOAD_LIBS'"' >> ld-wrapper
@@ -600,59 +582,19 @@ jobs:
           echo "--- 编译前环境文件时间戳: ---"
           LD_PRELOAD=$PRELOAD_LIBS stat ./Makefile
           
-          # 6.12内核make编译核心配置：
-          # 1. 重映射物理路径 (由于6.12内核引入了Rust代码，计算内核符号版本的工具变成了gendwarfksyms，而gendwarfksyms无法正确预处理绝对路径，故我们需要手动把绝对路径重映射为相对路径，否则内核符号校验值会大面积出错)
-          COMMON_REAL_PATH=$(pwd -P)
-          ROOT_REAL_PATH=$(dirname "$COMMON_REAL_PATH")
-          KCFLAGS+=" -fdebug-prefix-map=$ROOT_REAL_PATH=."
-          KCFLAGS+=" -fmacro-prefix-map=$ROOT_REAL_PATH=."
-          KCFLAGS+=" -ffile-prefix-map=$ROOT_REAL_PATH=."
-          # 2. 声明Rust等工具（此处若不进行声明，内核编译前的Rust环境预检测脚本scripts/rust_is_available.sh会检测失败，导致内核无法正常开启Rust代码编译）
-          export RUSTC="rustc"
-          export BINDGEN="bindgen"
-          export CC="clang"
-          export LIBCLANG_PATH="$WORKDIR/kernel_workspace/clang19/lib"
-          # 3. 配置KCFLAGS
-          KCFLAGS+=" -no-canonical-prefixes"
-          KCFLAGS+=" -O2"
-          KCFLAGS+=" -pipe"
-          KCFLAGS+=" -Wno-error"
-          KCFLAGS+=" -fno-stack-protector"
-          KCFLAGS+=" -D__ANDROID_COMMON_KERNEL__"
-          export KCFLAGS
-          # 4. 配置其他工具及选项（非必须，防错冗余）
-          export HOSTCC=clang
-          export LD="ld.lld"
-          export HOSTLD=ld.lld
-          export LLVM=1 LLVM_IAS=1
-          export ARCH=arm64 SUBARCH=arm64
-          export CROSS_COMPILE=aarch64-linux-gnu-
-          export LD=ld.lld HOSTLD=ld.lld AR=llvm-ar NM=llvm-nm AS=clang READELF=llvm-readelf
-          export OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump OBJSIZE=llvm-size STRIP=llvm-strip
-          # 5. 编译前运行官方环境配置脚本
-          source "./_setup_env.sh" 2>/dev/null || true
-          
           #在构建内核的同时清除不必要的.NET, Android NDK, Haskell, CodeQL运行库，清理空间且不阻塞后续步骤运行
           sudo rm -rf /usr/share/dotnet &
           sudo rm -rf /usr/local/lib/android &
           sudo rm -rf /opt/ghc &
           sudo rm -rf /opt/hostedtoolcache/CodeQL &
-          make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC="clang" LD="ld.lld" OBJCOPY="llvm-objcopy" O=out gki_defconfig &&
-          export CC="$(pwd)/cc-wrapper" && export LD="$(pwd)/ld-wrapper" &&
-          make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC="$(pwd)/cc-wrapper" LD="$(pwd)/ld-wrapper" OBJCOPY="llvm-objcopy" O=out Image
+          make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC="ccache clang" LD="ld.lld" HOSTLD=ld.lld O=out KCFLAGS+=-O2 KCFLAGS+=-Wno-error gki_defconfig &&
+          make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC="$(pwd)/cc-wrapper" LD="$(pwd)/ld-wrapper" HOSTLD=ld.lld O=out KCFLAGS+=-O2 KCFLAGS+=-Wno-error Image
           
           # 编译后时间劫持二次校验
           echo "--- 编译后环境时间: $(LD_PRELOAD=$PRELOAD_LIBS date) ---"
           echo "--- 编译后环境文件时间戳: ---"
           LD_PRELOAD=$PRELOAD_LIBS stat ./Makefile
           echo "内核编译完成！"
-          if [[ "${{ github.event.inputs.ccache_debug }}" == "true" ]]; then
-            echo "正在打包ccache日志及调试信息..."
-            cd ..
-            cp ./common/out/vmlinux.symvers ./vmlinux.symvers
-            cp ./common/out/.config ./config
-            zip -r9 debug.zip ccache.log config vmlinux.symvers
-          fi
           echo "ccache状态："
           ccache -s
           echo "编译后空间:"

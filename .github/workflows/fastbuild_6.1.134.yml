@@ -1,15 +1,15 @@
-name: 加速版构建 6.1.75 欧加真OKI内核
+name: 加速版构建 6.1.134 (天玑特供)欧加真OKI内核
 
 env:
   TZ: Asia/Shanghai
   ANDROID_VERSION: 'android14'
   KERNEL_VERSION: '6.1'
-  SUB_VERSION: '75'
+  SUB_VERSION: '134'
   KERNEL_NAME: 'android14-11-o-gca13bffobf09'
-  CCACHE_KEY: ccache-neov3-6.1.75
+  CCACHE_KEY: ccache-neov3-6.1.134
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       ksu_type:
         description: 'KernelSU分支(ReSukiSU/SukiSU Ultra/KernelSU Next/KSU(原版)/无内置KSU,默认ReSukiSU)'
@@ -56,7 +56,7 @@ on:
           - 'true'
           - 'default'
       better_net:
-        description: '是否开启网络功能拓展配置(用于为ipset及需要iptables等高级网络功能内核支持的程序提供支持)'
+        description: '是否开启网络功能拓展配置(用于为ipset及需要iptables等高级网络功能内核支持的程序提供支持,天玑机型可能导致bug,建议关闭)'
         required: true
         type: boolean
         default: 'false'
@@ -119,9 +119,9 @@ jobs:
           #sudo apt-get install -y --no-install-recommends curl bison flex make binutils git perl gcc python3 python-is-python3 bc libssl-dev libelf-dev zip unzip ccache
           
           echo "正在克隆源码仓库..."
-          aria2c -s16 -x16 -k1M https://github.com/cctv18/android_kernel_common_oneplus_sm8650/archive/refs/heads/oneplus/sm8650_v_15.0.0_oneplus12.zip -o common.zip && 
+          aria2c -s16 -x16 -k1M https://github.com/cctv18/android_kernel_oneplus_mt6989/archive/refs/heads/oneplus/mt6989_b_16.0.0_ace5_race.zip -o common.zip && 
           unzip -q common.zip && 
-          mv "android_kernel_common_oneplus_sm8650-oneplus-sm8650_v_15.0.0_oneplus12" common &&
+          mv "android_kernel_oneplus_mt6989-oneplus-mt6989_b_16.0.0_ace5_race" common &&
           rm -rf common.zip &
           
           echo "正在克隆llvm-Clang20工具链..." &&

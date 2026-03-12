@@ -1,15 +1,15 @@
-name: (天玑特供)加速版构建 6.6.50 欧加真OKI内核
+name: 加速版构建 6.6.30 欧加真OKI内核
 
 env:
   TZ: Asia/Shanghai
   ANDROID_VERSION: 'android15'
   KERNEL_VERSION: '6.6'
-  SUB_VERSION: '50'
+  SUB_VERSION: '30'
   KERNEL_NAME: 'android15-8-g29d86c5fc9dd-abogki428889875-4k'
-  CCACHE_KEY: ccache-neov4-6.6.50
+  CCACHE_KEY: ccache-neov4-6.6.30
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       ksu_type:
         description: 'KernelSU分支(ReSukiSU/SukiSU Ultra/KernelSU Next/KSU(原版)/无内置KSU,默认ReSukiSU)'
@@ -56,7 +56,7 @@ on:
           - 'true'
           - 'default'
       better_net:
-        description: '是否开启网络功能拓展配置(用于为ipset及需要iptables等高级网络功能内核支持的程序提供支持,天玑机型可能导致bug,建议关闭)'
+        description: '是否开启网络功能拓展配置(用于为ipset及需要iptables等高级网络功能内核支持的程序提供支持)'
         required: true
         type: boolean
         default: 'false'
@@ -119,9 +119,9 @@ jobs:
           #sudo apt-get install -y --no-install-recommends curl bison flex make binutils git perl gcc python3 python-is-python3 bc libssl-dev libelf-dev zip unzip ccache
           
           echo "正在克隆源码仓库..."
-          aria2c -s16 -x16 -k1M https://github.com/cctv18/android_kernel_oneplus_mt6991/archive/refs/heads/oneplus/mt6991_v_15.0.2_ace5_ultra.zip -o common.zip && 
+          aria2c -s16 -x16 -k1M https://github.com/cctv18/android_kernel_common_oneplus_sm8750/archive/refs/heads/oneplus/sm8750_v_15.0.0_oneplus_13.zip -o common.zip && 
           unzip -q common.zip && 
-          mv "android_kernel_oneplus_mt6991-oneplus-mt6991_v_15.0.2_ace5_ultra" common &&
+          mv "android_kernel_common_oneplus_sm8750-oneplus-sm8750_v_15.0.0_oneplus_13" common &&
           rm -rf common.zip &
           
           echo "正在克隆llvm-clang18工具链..." &&
@@ -332,12 +332,10 @@ jobs:
           cd kernel_workspace
           git clone --depth=1 https://github.com/$GITHUB_REPOSITORY.git -b ${{ env.KERNEL_VERSION }} $GITHUB_ACTOR
           cp ./$GITHUB_ACTOR/zram_patch/001-lz4.patch ./common/
-          cp ./$GITHUB_ACTOR/zram_patch/001-lz4-clearMake.patch ./common/
           cp ./$GITHUB_ACTOR/zram_patch/lz4armv8.S ./common/lib
           cp ./$GITHUB_ACTOR/zram_patch/002-zstd.patch ./common/
           cd ./common
           git apply -p1 < 001-lz4.patch || true
-          git apply -p1 < 001-lz4-clearMake.patch || true
           patch -p1 < 002-zstd.patch || true
 
       - name: 应用 lz4kd 补丁

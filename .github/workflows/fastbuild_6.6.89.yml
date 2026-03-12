@@ -9,7 +9,7 @@ env:
   CCACHE_KEY: ccache-neov4-6.6.89
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       ksu_type:
         description: 'KernelSU分支(ReSukiSU/SukiSU Ultra/KernelSU Next/KSU(原版)/无内置KSU,默认ReSukiSU)'

@@ -1,0 +1,218 @@
+name: 更新全部版本ccache
+
+on:
+  workflow_dispatch:
+    inputs:
+      unified_ksu_type:
+        description: '统一 KernelSU 分支'
+        required: true
+        type: choice
+        default: 'none'
+        options:
+          - 'resukisu'
+          - 'sukisu'
+          - 'ksunext'
+          - 'ksu'
+          - 'none'
+      unified_susfs_enable:
+        description: '是否统一开启 susfs'
+        required: true
+        type: boolean
+        default: false
+
+jobs:
+  build_6_1_57:
+    uses: ./.github/workflows/fastbuild_6.1.57.yml
+    with: 
+      ksu_type: ${{ inputs.unified_ksu_type }}
+      susfs_enable: ${{ inputs.unified_susfs_enable }}
+      ccache_update: true
+    secrets: inherit
+
+  build_6_1_75:
+    uses: ./.github/workflows/fastbuild_6.1.75.yml
+    with: 
+      ksu_type: ${{ inputs.unified_ksu_type }}
+      susfs_enable: ${{ inputs.unified_susfs_enable }}
+      ccache_update: true
+    secrets: inherit
+
+  build_6_1_115:
+    uses: ./.github/workflows/fastbuild_6.1.115.yml
+    with:
+      ksu_type: ${{ inputs.unified_ksu_type }}
+      susfs_enable: ${{ inputs.unified_susfs_enable }}
+      ccache_update: true
+    secrets: inherit
+
+  build_6_1_118:
+    uses: ./.github/workflows/fastbuild_6.1.118.yml
+    with:
+      ksu_type: ${{ inputs.unified_ksu_type }}
+      susfs_enable: ${{ inputs.unified_susfs_enable }}
+      ccache_update: true
+    secrets: inherit
+
+  build_6_1_128:
+    uses: ./.github/workflows/fastbuild_6.1.128.yml
+    with: 
+      ksu_type: ${{ inputs.unified_ksu_type }}
+      susfs_enable: ${{ inputs.unified_susfs_enable }}
+      ccache_update: true
+    secrets: inherit
+
+  build_6_1_134:
+    uses: ./.github/workflows/fastbuild_6.1.134.yml
+    with: 
+      ksu_type: ${{ inputs.unified_ksu_type }}
+      susfs_enable: ${{ inputs.unified_susfs_enable }}
+      ccache_update: true
+    secrets: inherit
+
+  # --- 6.6 系列 ---
+  build_6_6_30:
+    uses: ./.github/workflows/fastbuild_6.6.30.yml
+    with: 
+      ksu_type: ${{ inputs.unified_ksu_type }}
+      susfs_enable: ${{ inputs.unified_susfs_enable }}
+      ccache_update: true
+    secrets: inherit
+
+  build_6_6_50:
+    uses: ./.github/workflows/fastbuild_6.6.50.yml
+    with: 
+      ksu_type: ${{ inputs.unified_ksu_type }}
+      susfs_enable: ${{ inputs.unified_susfs_enable }}
+      ccache_update: true
+    secrets: inherit
+
+  build_6_6_56:
+    uses: ./.github/workflows/fastbuild_6.6.56.yml
+    with: 
+      ksu_type: ${{ inputs.unified_ksu_type }}
+      susfs_enable: ${{ inputs.unified_susfs_enable }}
+      ccache_update: true
+    secrets: inherit
+
+  build_6_6_57:
+    uses: ./.github/workflows/fastbuild_6.6.57.yml
+    with: 
+      ksu_type: ${{ inputs.unified_ksu_type }}
+      susfs_enable: ${{ inputs.unified_susfs_enable }}
+      ccache_update: true
+    secrets: inherit
+
+  build_6_6_66:
+    uses: ./.github/workflows/fastbuild_6.6.66.yml
+    with: 
+      ksu_type: ${{ inputs.unified_ksu_type }}
+      susfs_enable: ${{ inputs.unified_susfs_enable }}
+      ccache_update: true
+    secrets: inherit
+
+  build_6_6_89:
+    uses: ./.github/workflows/fastbuild_6.6.89.yml
+    with: 
+      ksu_type: ${{ inputs.unified_ksu_type }}
+      susfs_enable: ${{ inputs.unified_susfs_enable }}
+      ccache_update: true
+    secrets: inherit
+
+  build_6_6_89_mtk:
+    uses: ./.github/workflows/fastbuild_6.6.89_mtk.yml
+    with: 
+      ksu_type: ${{ inputs.unified_ksu_type }}
+      susfs_enable: ${{ inputs.unified_susfs_enable }}
+      ccache_update: true
+    secrets: inherit
+
+  # --- 6.12 系列 ---
+  build_6_12_23:
+    uses: ./.github/workflows/fastbuild_6.12.23.yml
+    with: 
+      ksu_type: ${{ inputs.unified_ksu_type }}
+      susfs_enable: ${{ inputs.unified_susfs_enable }}
+      ccache_update: true
+    secrets: inherit
+
+  build_6_12_23_mtk:
+    uses: ./.github/workflows/fastbuild_6.12.23_mtk.yml
+    with: 
+      ksu_type: ${{ inputs.unified_ksu_type }}
+      susfs_enable: ${{ inputs.unified_susfs_enable }}
+      ccache_update: true
+    secrets: inherit
+
+  build_6_12_38:
+    uses: ./.github/workflows/fastbuild_6.12.38.yml
+    with: 
+      ksu_type: ${{ inputs.unified_ksu_type }}
+      susfs_enable: ${{ inputs.unified_susfs_enable }}
+      ccache_update: true
+    secrets: inherit
+
+  publish_ccache_release:
+    needs: 
+      - build_6_1_57
+      - build_6_1_75
+      - build_6_1_115
+      - build_6_1_118
+      - build_6_1_128
+      - build_6_1_134
+      - build_6_6_30
+      - build_6_6_50
+      - build_6_6_56
+      - build_6_6_57
+      - build_6_6_66
+      - build_6_6_89
+      - build_6_6_89_mtk
+      - build_6_12_23
+      - build_6_12_23_mtk
+      - build_6_12_38
+    if: ${{ !cancelled() }} 
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: 下载所有成功的 ccache 工件
+        uses: actions/download-artifact@v8
+        with:
+          pattern: ccache-*
+          path: ./ccache_release
+          merge-multiple: true
+          skip-decompress: true
+
+      - name: 设置环境变量
+        run: |
+          TIME="$(TZ='Asia/Shanghai' date +'%y%m%d%H%M%S')"
+          TIME_FORM="$(TZ='Asia/Shanghai' date +'%Y-%m-%d %H:%M:%S')"
+          echo "TIME=$TIME" >> $GITHUB_ENV
+          echo "TIME_FORM=$TIME_FORM" >> $GITHUB_ENV
+          TAG_HEAD="OPPO-OPlus-Realme-ccache"
+          echo "TAG_HEAD=$TAG_HEAD" >> $GITHUB_ENV
+
+      - name: 发布前准备
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "删除旧的 Release 和 Tag 以保持最新..."
+          gh release delete ccache-latest -y --cleanup-tag || true
+         
+      - name: 创建发布
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: "${{ env.TAG_HEAD }}-${{ env.TIME }}"
+          name: "${{ env.TAG_HEAD }}-release-${{ env.TIME }}"
+          body: |
+            ### 📱 欧加真 6.1-6.12 全版本内核公共ccache缓存
+            - 更新时间: ${{ env.TIME_FORM }}
+            - KSU分支：${{ github.event.inputs.unified_ksu_type }}
+            - susfs支持：${{ github.event.inputs.unified_susfs_enable }}
+          draft: false
+          prerelease: false
+          files: |
+            ccache_release/*.tar.zst

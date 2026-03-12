@@ -14,28 +14,18 @@ on:
       ksu_type:
         description: 'KernelSU分支(ReSukiSU/SukiSU Ultra/KernelSU Next/KSU(原版)/无内置KSU,默认ReSukiSU)'
         required: true
-        type: choice
-        default: 'resukisu'
-        options:
-          - 'resukisu'
-          - 'sukisu'
-          - 'ksunext'
-          - 'ksu'
-          - 'none'
+        type: string
+        default: 'none'
       susfs_enable:
         description: '是否开启susfs(用于增强隐藏环境挂载功能; 可能轻微增加耗电，上游更新导致不稳定时或不需要可关闭)'
         required: true
         type: boolean
-        default: 'true'
+        default: 'false'
       kpm_enable:
         description: '是否开启kpm(builtin-使用(re)sukisu内置kpm, kpn-使用独立kpm实现(支持任意KSU/面具环境); 不需要可保持默认关闭)'
         required: true
-        type: choice
+        type: string
         default: 'false'
-        options:
-          - 'false'
-          - 'builtin'
-          - 'kpn'
       lz4_enable:
         description: '是否安装 lz4 1.10.0+zstd 1.5.7 补丁及 LZ4KD 补丁'
         required: true
@@ -49,12 +39,8 @@ on:
       bbr_enable:
         description: "是否启用bbr算法(优化上行数据,对手机日用无太大意义甚至可能负优化;false关闭,true仅加入算法,default启用算法并设为默认)"
         required: true
-        type: choice
+        type: string
         default: 'false'
-        options:
-          - 'false'
-          - 'true'
-          - 'default'
       better_net:
         description: '是否开启网络功能拓展配置(用于为ipset及需要iptables等高级网络功能内核支持的程序提供支持)'
         required: true

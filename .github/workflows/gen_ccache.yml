@@ -147,6 +147,14 @@ jobs:
       ccache_update: true
     secrets: inherit
 
+  build_6_12_23_gki:
+    uses: ./.github/workflows/fastbuild_6.12.23_gki.yml
+    with: 
+      ksu_type: ${{ inputs.unified_ksu_type }}
+      susfs_enable: ${{ inputs.unified_susfs_enable }}
+      ccache_update: true
+    secrets: inherit
+
   build_6_12_38:
     uses: ./.github/workflows/fastbuild_6.12.38.yml
     with: 
@@ -172,6 +180,7 @@ jobs:
       - build_6_6_89_mtk
       - build_6_12_23
       - build_6_12_23_mtk
+      - build_6_12_23_gki
       - build_6_12_38
     if: ${{ !cancelled() }} 
     runs-on: ubuntu-latest

@@ -782,3 +782,11 @@ jobs:
           path: ${{ github.workspace }}/out-${{ env.KERNEL_VERSION }}.${{ env.SUB_VERSION }}.tar.zst
           retention-days: 1 # 仅作中转使用，1天后自动清理以节省空间
           archive: false
+
+      - name: 上传 Ccache 调试日志
+        if: always() && inputs.ccache_debug
+        uses: actions/upload-artifact@v7
+        with:
+          name: ccache-debug-log
+          path: ${{ github.workspace }}/kernel_workspace/ccache.log
+          archive: true

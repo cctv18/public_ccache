@@ -71,6 +71,11 @@ on:
         required: false
         type: boolean
         default: false
+      disable_old_ccache:
+        description: '禁用旧ccache（针对旧缓存可能存在故障时使用）'
+        required: false
+        type: boolean
+        default: false
       kernel_suffix:
         description: '内核后缀(留空默认,开头别加连字符,勿加空格等影响指令运行的保留字符)'
         required: false
@@ -135,6 +140,11 @@ on:
         default: false
       ccache_debug:
         description: '是否上传 Ccache调试日志(用于调试, 无需要不必开启)'
+        required: false
+        type: boolean
+        default: false
+      disable_old_ccache:
+        description: '禁用旧ccache（针对旧缓存可能存在故障时使用）'
         required: false
         type: boolean
         default: false
@@ -217,6 +227,7 @@ jobs:
           echo "当前构建内核版本：${{ env.KERNEL_VERSION }}.${{ env.SUB_VERSION }}"
 
       - name: 载入当前版本内核的 ccache缓存
+        if: ${{ !inputs.disable_old_ccache }}
         uses: actions/cache@v5
         id: ccache-restore
         with:
@@ -227,6 +238,7 @@ jobs:
             ${{ env.CCACHE_KEY }}-
 
       - name: 拉取公共预置 ccache 缓存
+        if: ${{ !inputs.disable_old_ccache }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

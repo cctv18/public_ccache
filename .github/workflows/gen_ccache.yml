@@ -31,7 +31,7 @@ jobs:
       ksu_type: ${{ inputs.unified_ksu_type }}
       susfs_enable: ${{ inputs.unified_susfs_enable }}
       ccache_update: true
-      disable_old_ccache: false
+      disable_old_ccache: true
     secrets: inherit
 
   build_6_1_75:
@@ -40,7 +40,7 @@ jobs:
       ksu_type: ${{ inputs.unified_ksu_type }}
       susfs_enable: ${{ inputs.unified_susfs_enable }}
       ccache_update: true
-      disable_old_ccache: false
+      disable_old_ccache: true
     secrets: inherit
 
   build_6_1_115:
@@ -49,7 +49,7 @@ jobs:
       ksu_type: ${{ inputs.unified_ksu_type }}
       susfs_enable: ${{ inputs.unified_susfs_enable }}
       ccache_update: true
-      disable_old_ccache: false
+      disable_old_ccache: true
     secrets: inherit
 
   build_6_1_118:
@@ -58,7 +58,7 @@ jobs:
       ksu_type: ${{ inputs.unified_ksu_type }}
       susfs_enable: ${{ inputs.unified_susfs_enable }}
       ccache_update: true
-      disable_old_ccache: false
+      disable_old_ccache: true
     secrets: inherit
 
   build_6_1_128:
@@ -67,7 +67,7 @@ jobs:
       ksu_type: ${{ inputs.unified_ksu_type }}
       susfs_enable: ${{ inputs.unified_susfs_enable }}
       ccache_update: true
-      disable_old_ccache: false
+      disable_old_ccache: true
     secrets: inherit
 
   build_6_1_134:
@@ -76,7 +76,7 @@ jobs:
       ksu_type: ${{ inputs.unified_ksu_type }}
       susfs_enable: ${{ inputs.unified_susfs_enable }}
       ccache_update: true
-      disable_old_ccache: false
+      disable_old_ccache: true
     secrets: inherit
 
   build_6_1_141:
@@ -85,7 +85,7 @@ jobs:
       ksu_type: ${{ inputs.unified_ksu_type }}
       susfs_enable: ${{ inputs.unified_susfs_enable }}
       ccache_update: true
-      disable_old_ccache: false
+      disable_old_ccache: true
     secrets: inherit
 
   # --- 6.6 系列 ---
@@ -95,7 +95,7 @@ jobs:
       ksu_type: ${{ inputs.unified_ksu_type }}
       susfs_enable: ${{ inputs.unified_susfs_enable }}
       ccache_update: true
-      disable_old_ccache: false
+      disable_old_ccache: true
     secrets: inherit
 
   build_6_6_50:
@@ -104,7 +104,7 @@ jobs:
       ksu_type: ${{ inputs.unified_ksu_type }}
       susfs_enable: ${{ inputs.unified_susfs_enable }}
       ccache_update: true
-      disable_old_ccache: false
+      disable_old_ccache: true
     secrets: inherit
 
   build_6_6_56:
@@ -113,7 +113,7 @@ jobs:
       ksu_type: ${{ inputs.unified_ksu_type }}
       susfs_enable: ${{ inputs.unified_susfs_enable }}
       ccache_update: true
-      disable_old_ccache: false
+      disable_old_ccache: true
     secrets: inherit
 
   build_6_6_57:
@@ -122,7 +122,7 @@ jobs:
       ksu_type: ${{ inputs.unified_ksu_type }}
       susfs_enable: ${{ inputs.unified_susfs_enable }}
       ccache_update: true
-      disable_old_ccache: false
+      disable_old_ccache: true
     secrets: inherit
 
   build_6_6_66:
@@ -131,7 +131,7 @@ jobs:
       ksu_type: ${{ inputs.unified_ksu_type }}
       susfs_enable: ${{ inputs.unified_susfs_enable }}
       ccache_update: true
-      disable_old_ccache: false
+      disable_old_ccache: true
     secrets: inherit
 
   build_6_6_89:
@@ -140,7 +140,7 @@ jobs:
       ksu_type: ${{ inputs.unified_ksu_type }}
       susfs_enable: ${{ inputs.unified_susfs_enable }}
       ccache_update: true
-      disable_old_ccache: false
+      disable_old_ccache: true
     secrets: inherit
 
   build_6_6_89_mtk:
@@ -149,7 +149,7 @@ jobs:
       ksu_type: ${{ inputs.unified_ksu_type }}
       susfs_enable: ${{ inputs.unified_susfs_enable }}
       ccache_update: true
-      disable_old_ccache: false
+      disable_old_ccache: true
     secrets: inherit
 
   # --- 6.12 系列 ---

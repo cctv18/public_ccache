@@ -719,3 +719,18 @@ jobs:
           path: ${{ github.workspace }}/ccache-${{ env.KERNEL_VERSION }}.${{ env.SUB_VERSION }}.tar.zst
           retention-days: 1 # 仅作中转使用，1天后自动清理以节省空间
           archive: false
+
+      - name: 将当前 out 目录打包为归档文件
+        if: always() # 无论编译成功与否，只要生成缓存就尝试打包
+        run: |
+          echo "正在使用 zstd 压缩 out 目录..."
+          cd kernel_workspace/common/out
+          tar -I zstd -cf ${{ github.workspace }}/out-${{ env.KERNEL_VERSION }}.${{ env.SUB_VERSION }}.tar.zst .
+
+      - name: 上传 out 工件 (供 gen_ccache.yml 合并发布)
+        uses: actions/upload-artifact@v7
+        with:
+          name: out-${{ env.KERNEL_VERSION }}.${{ env.SUB_VERSION }}
+          path: ${{ github.workspace }}/out-${{ env.KERNEL_VERSION }}.${{ env.SUB_VERSION }}.tar.zst
+          retention-days: 1 # 仅作中转使用，1天后自动清理以节省空间
+          archive: false

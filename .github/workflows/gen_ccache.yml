@@ -19,6 +19,15 @@ on:
         required: true
         type: boolean
         default: false
+      unified_droidspaces:
+        description: '是否统一开启 Droidspaces 支持'
+        required: true
+        type: choice
+        default: 'false'
+        options:
+          - 'false'
+          - 'standard'
+          - 'extend'
 
 permissions:
   contents: write
@@ -30,6 +39,7 @@ jobs:
     with: 
       ksu_type: ${{ inputs.unified_ksu_type }}
       susfs_enable: ${{ inputs.unified_susfs_enable }}
+      droidspaces_enable: ${{ inputs.unified_droidspaces }}
       ccache_update: true
       disable_old_ccache: false
     secrets: inherit
@@ -39,6 +49,7 @@ jobs:
     with: 
       ksu_type: ${{ inputs.unified_ksu_type }}
       susfs_enable: ${{ inputs.unified_susfs_enable }}
+      droidspaces_enable: ${{ inputs.unified_droidspaces }}
       ccache_update: true
       disable_old_ccache: false
     secrets: inherit
@@ -48,6 +59,7 @@ jobs:
     with:
       ksu_type: ${{ inputs.unified_ksu_type }}
       susfs_enable: ${{ inputs.unified_susfs_enable }}
+      droidspaces_enable: ${{ inputs.unified_droidspaces }}
       ccache_update: true
       disable_old_ccache: false
     secrets: inherit
@@ -57,6 +69,7 @@ jobs:
     with:
       ksu_type: ${{ inputs.unified_ksu_type }}
       susfs_enable: ${{ inputs.unified_susfs_enable }}
+      droidspaces_enable: ${{ inputs.unified_droidspaces }}
       ccache_update: true
       disable_old_ccache: false
     secrets: inherit
@@ -66,6 +79,7 @@ jobs:
     with: 
       ksu_type: ${{ inputs.unified_ksu_type }}
       susfs_enable: ${{ inputs.unified_susfs_enable }}
+      droidspaces_enable: ${{ inputs.unified_droidspaces }}
       ccache_update: true
       disable_old_ccache: false
     secrets: inherit
@@ -75,6 +89,7 @@ jobs:
     with: 
       ksu_type: ${{ inputs.unified_ksu_type }}
       susfs_enable: ${{ inputs.unified_susfs_enable }}
+      droidspaces_enable: ${{ inputs.unified_droidspaces }}
       ccache_update: true
       disable_old_ccache: false
     secrets: inherit
@@ -84,6 +99,7 @@ jobs:
     with: 
       ksu_type: ${{ inputs.unified_ksu_type }}
       susfs_enable: ${{ inputs.unified_susfs_enable }}
+      droidspaces_enable: ${{ inputs.unified_droidspaces }}
       ccache_update: true
       disable_old_ccache: false
     secrets: inherit
@@ -94,6 +110,7 @@ jobs:
     with: 
       ksu_type: ${{ inputs.unified_ksu_type }}
       susfs_enable: ${{ inputs.unified_susfs_enable }}
+      droidspaces_enable: ${{ inputs.unified_droidspaces }}
       ccache_update: true
       disable_old_ccache: false
     secrets: inherit
@@ -103,6 +120,7 @@ jobs:
     with: 
       ksu_type: ${{ inputs.unified_ksu_type }}
       susfs_enable: ${{ inputs.unified_susfs_enable }}
+      droidspaces_enable: ${{ inputs.unified_droidspaces }}
       ccache_update: true
       disable_old_ccache: false
     secrets: inherit
@@ -112,6 +130,7 @@ jobs:
     with: 
       ksu_type: ${{ inputs.unified_ksu_type }}
       susfs_enable: ${{ inputs.unified_susfs_enable }}
+      droidspaces_enable: ${{ inputs.unified_droidspaces }}
       ccache_update: true
       disable_old_ccache: false
     secrets: inherit
@@ -121,6 +140,7 @@ jobs:
     with: 
       ksu_type: ${{ inputs.unified_ksu_type }}
       susfs_enable: ${{ inputs.unified_susfs_enable }}
+      droidspaces_enable: ${{ inputs.unified_droidspaces }}
       ccache_update: true
       disable_old_ccache: false
     secrets: inherit
@@ -130,6 +150,7 @@ jobs:
     with: 
       ksu_type: ${{ inputs.unified_ksu_type }}
       susfs_enable: ${{ inputs.unified_susfs_enable }}
+      droidspaces_enable: ${{ inputs.unified_droidspaces }}
       ccache_update: true
       disable_old_ccache: false
     secrets: inherit
@@ -139,6 +160,7 @@ jobs:
     with: 
       ksu_type: ${{ inputs.unified_ksu_type }}
       susfs_enable: ${{ inputs.unified_susfs_enable }}
+      droidspaces_enable: ${{ inputs.unified_droidspaces }}
       ccache_update: true
       disable_old_ccache: false
     secrets: inherit
@@ -148,6 +170,7 @@ jobs:
     with: 
       ksu_type: ${{ inputs.unified_ksu_type }}
       susfs_enable: ${{ inputs.unified_susfs_enable }}
+      droidspaces_enable: ${{ inputs.unified_droidspaces }}
       ccache_update: true
       disable_old_ccache: false
     secrets: inherit
@@ -158,6 +181,7 @@ jobs:
     with: 
       ksu_type: ${{ inputs.unified_ksu_type }}
       susfs_enable: ${{ inputs.unified_susfs_enable }}
+      droidspaces_enable: ${{ inputs.unified_droidspaces }}
       ccache_update: true
       disable_old_ccache: false
     secrets: inherit
@@ -167,6 +191,7 @@ jobs:
     with: 
       ksu_type: ${{ inputs.unified_ksu_type }}
       susfs_enable: ${{ inputs.unified_susfs_enable }}
+      droidspaces_enable: ${{ inputs.unified_droidspaces }}
       ccache_update: true
       disable_old_ccache: false
     secrets: inherit
@@ -176,6 +201,7 @@ jobs:
     with: 
       ksu_type: ${{ inputs.unified_ksu_type }}
       susfs_enable: ${{ inputs.unified_susfs_enable }}
+      droidspaces_enable: ${{ inputs.unified_droidspaces }}
       ccache_update: true
       disable_old_ccache: false
     secrets: inherit
@@ -185,6 +211,7 @@ jobs:
     with: 
       ksu_type: ${{ inputs.unified_ksu_type }}
       susfs_enable: ${{ inputs.unified_susfs_enable }}
+      droidspaces_enable: ${{ inputs.unified_droidspaces }}
       ccache_update: true
       disable_old_ccache: false
     secrets: inherit
@@ -226,6 +253,7 @@ jobs:
           skip-decompress: true
 
       - name: 下载所有成功的 out 工件
+        if: false
         uses: actions/download-artifact@v8
         with:
           pattern: out-*
@@ -243,6 +271,7 @@ jobs:
           echo "TAG_HEAD=$TAG_HEAD" >> $GITHUB_ENV
 
       - name: 发布前准备
+        if: false
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

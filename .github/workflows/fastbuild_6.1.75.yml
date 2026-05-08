@@ -6,7 +6,7 @@ env:
   KERNEL_VERSION: '6.1'
   SUB_VERSION: '75'
   KERNEL_NAME: 'android14-11-o-gca13bffobf09'
-  CCACHE_KEY: ccache-neov3-6.1.75
+  CCACHE_KEY: ccache-ecsv3-6.1.75
 
 on:
   workflow_dispatch:
@@ -38,6 +38,11 @@ on:
         default: false
       bbr_enable:
         description: '是否启用bbr算法(优化上行数据,对手机日用无太大意义甚至可能负优化;false关闭,true仅加入算法,default设为默认)'
+        required: false
+        type: string
+        default: 'false'
+      droidspaces_enable:
+        description: '是否启用Droidspaces容器支持(轻量化的完整Linux容器支持;false关闭,standard开启容器+ntsync支持,extend开启更多测试支持项)'
         required: false
         type: string
         default: 'false'
@@ -110,6 +115,11 @@ on:
         default: false
       bbr_enable:
         description: '是否启用bbr算法(优化上行数据,对手机日用无太大意义甚至可能负优化;false关闭,true仅加入算法,default设为默认)'
+        required: false
+        type: string
+        default: 'false'
+      droidspaces_enable:
+        description: '是否启用Droidspaces容器支持(轻量化的完整Linux容器支持;false关闭,standard开启容器+ntsync支持,extend开启更多测试支持项)'
         required: false
         type: string
         default: 'false'
@@ -220,6 +230,12 @@ jobs:
           echo "当前磁盘空间："
           df -h
           echo "当前构建内核版本：${{ env.KERNEL_VERSION }}.${{ env.SUB_VERSION }}"
+          if [[ "${{ inputs.droidspaces_enable }}" != "false" ]]; then
+            CCACHE_REAL_KEY=${{ env.CCACHE_KEY }}-Droidspaces
+          else
+            CCACHE_REAL_KEY=${{ env.CCACHE_KEY }}-none
+          fi
+          echo "CCACHE_REAL_KEY=$CCACHE_REAL_KEY" >> $GITHUB_ENV
 
       - name: 载入当前版本内核的 ccache缓存
         if: ${{ !inputs.disable_old_ccache }}
@@ -227,10 +243,10 @@ jobs:
         id: ccache-restore
         with:
           path: ${{ env.CCACHE_DIR }}
-          key: ${{ env.CCACHE_KEY }}-${{ runner.os }}-main
+          key: ${{ env.CCACHE_REAL_KEY }}-${{ runner.os }}-main
           restore-keys: |
-            ${{ env.CCACHE_KEY }}-${{ runner.os }}-
-            ${{ env.CCACHE_KEY }}-
+            ${{ env.CCACHE_REAL_KEY }}-${{ runner.os }}-
+            ${{ env.CCACHE_REAL_KEY }}-
 
       - name: 拉取公共预置 ccache 缓存
         if: ${{ !inputs.disable_old_ccache }}
@@ -245,7 +261,11 @@ jobs:
           
           echo "未命中缓存，尝试拉取最新公共 ccache ..."
           mkdir -p ${{ env.CCACHE_DIR }}
-          FILE_NAME="ccache-${{ env.KERNEL_VERSION }}.${{ env.SUB_VERSION }}.tar.zst"
+          if [[ "${{ inputs.droidspaces_enable }}" != "false" ]]; then
+            FILE_NAME="ccache-${{ env.KERNEL_VERSION }}.${{ env.SUB_VERSION }}-Droidspaces.tar.zst"
+          else
+            FILE_NAME="ccache-${{ env.KERNEL_VERSION }}.${{ env.SUB_VERSION }}.tar.zst"
+          fi
           
           if gh release download -p "$FILE_NAME" -R cctv18/public_ccache; then
             echo "成功下载 $FILE_NAME，正在解压..."
@@ -261,7 +281,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "正在清除仓库中的旧 ccache 缓存..."
-          if gh cache delete ${{ env.CCACHE_KEY }}-${{ runner.os }}-main -R ${{ github.repository }}; then
+          if gh cache delete ${{ env.CCACHE_REAL_KEY }}-${{ runner.os }}-main -R ${{ github.repository }}; then
             echo "成功删除旧的 ccache 缓存！"
           else
             echo "旧缓存不存在或已被清理！"
@@ -569,6 +589,53 @@ jobs:
             fi
           fi
 
+      - name: 启用 Droidspaces 容器支持
+        run: |
+          if [[ "${{ inputs.droidspaces_enable }}" != "false" ]]; then
+            echo "正在启用 Droidspaces 容器支持..."
+            cd kernel_workspace/common
+            # 应用 Droidspaces 容器必须补丁
+            wget https://github.com/$GITHUB_REPOSITORY/raw/refs/heads/${{ env.KERNEL_VERSION }}/droidspaces_patch/fix_sysvipc_kabi_6_7_8.patch
+            patch -p1 -F 3 < fix_sysvipc_kabi_6_7_8.patch || true
+            # 修补 oplus_bsp_midas 行为，避免开机崩溃
+            wget https://github.com/$GITHUB_REPOSITORY/raw/refs/heads/${{ env.KERNEL_VERSION }}/droidspaces_patch/fix_oplus_bsp_midas.patch
+            patch -p1 -F 3 < fix_oplus_bsp_midas.patch || true
+            # 应用 NTSync 补丁
+            wget https://github.com/$GITHUB_REPOSITORY/raw/refs/heads/${{ env.KERNEL_VERSION }}/droidspaces_patch/ntsync_base.patch
+            wget https://github.com/$GITHUB_REPOSITORY/raw/refs/heads/${{ env.KERNEL_VERSION }}/droidspaces_patch/ntsync_compat_${{ env.ANDROID_VERSION }}-${{ env.KERNEL_VERSION }}.patch
+            patch -p1 -F 3 < ntsync_base.patch || true
+            patch -p1 -F 3 < ntsync_compat_${{ env.ANDROID_VERSION }}-${{ env.KERNEL_VERSION }}.patch || true
+            # 开启 Droidspaces 容器所需内核支持
+            echo "CONFIG_PID_NS=y" >> ./arch/arm64/configs/gki_defconfig
+            echo "CONFIG_IPC_NS=y" >> ./arch/arm64/configs/gki_defconfig
+            echo "CONFIG_SYSVIPC=y" >> ./arch/arm64/configs/gki_defconfig
+            echo "CONFIG_DEVTMPFS=y" >> ./arch/arm64/configs/gki_defconfig
+            echo "CONFIG_NAMESPACES=y" >> ./arch/arm64/configs/gki_defconfig
+            echo "CONFIG_POSIX_MQUEUE=y" >> ./arch/arm64/configs/gki_defconfig
+            echo "CONFIG_NETFILTER_XT_MATCH_ADDRTYPE=y" >> ./arch/arm64/configs/gki_defconfig
+            echo "CONFIG_NETFILTER_XT_TARGET_LOG=y" >> ./arch/arm64/configs/gki_defconfig
+            echo "CONFIG_NETFILTER_XT_MATCH_RECENT=y" >> ./arch/arm64/configs/gki_defconfig
+            # 未经测试的配置选项，可能导致bug
+            #echo "CONFIG_CGROUP_DEVICE=y" >> ./arch/arm64/configs/gki_defconfig
+            #echo "CONFIG_CGROUP_PIDS=y" >> ./arch/arm64/configs/gki_defconfig
+            #echo "CONFIG_FW_LOADER_COMPRESS=y" >> ./arch/arm64/configs/gki_defconfig
+            #echo "CONFIG_BRIDGE_NETFILTER=y" >> ./arch/arm64/configs/gki_defconfig
+            #echo "CONFIG_NF_TABLES=y" >> ./arch/arm64/configs/gki_defconfig
+            # 开启 NTSync
+            echo "CONFIG_NTSYNC=y" >> ./arch/arm64/configs/gki_defconfig
+            if [[ "${{ inputs.droidspaces_enable }}" == "extend" ]]; then
+              echo "正在启用容器环境扩展支持..."
+              # 开启虚拟 HCI 设备支持
+              echo "CONFIG_BT_HCIVHCI=y" >> ./arch/arm64/configs/gki_defconfig
+              # 开启 systemd-coredump 支持
+              echo "CONFIG_STATIC_USERMODEHELPER=n" >> ./arch/arm64/configs/gki_defconfig
+              # 添加 Lindroid EVDI DRM 驱动
+              wget https://github.com/$GITHUB_REPOSITORY/raw/refs/heads/${{ env.KERNEL_VERSION }}/droidspaces_patch/evdi_drm.patch
+              patch -p1 -F 3 < evdi_drm.patch || true
+              echo "CONFIG_DRM_LINDROID_EVDI=y" >> ./arch/arm64/configs/gki_defconfig
+            fi
+          fi
+
       - name: 启用三星SSG IO调度器
         if: inputs.ssg_enable
         run: |
@@ -699,31 +766,38 @@ jobs:
         uses: actions/cache/save@v5
         with:
           path: ${{ env.CCACHE_DIR }}
-          key: ${{ env.CCACHE_KEY }}-${{ runner.os }}-main
+          key: ${{ env.CCACHE_REAL_KEY }}-${{ runner.os }}-main
 
       - name: 将当前 ccache 打包为归档文件
         if: always() # 无论编译成功与否，只要生成缓存就尝试打包
         run: |
           echo "正在使用 zstd 压缩 ccache 目录..."
           cd ${{ env.CCACHE_DIR }}
-          tar -I zstd -cf ${{ github.workspace }}/ccache-${{ env.KERNEL_VERSION }}.${{ env.SUB_VERSION }}.tar.zst .
+          if [[ "${{ inputs.droidspaces_enable }}" != "false" ]]; then
+            FILE_NAME="ccache-${{ env.KERNEL_VERSION }}.${{ env.SUB_VERSION }}-Droidspaces.tar.zst"
+          else
+            FILE_NAME="ccache-${{ env.KERNEL_VERSION }}.${{ env.SUB_VERSION }}.tar.zst"
+          fi
+          echo "FILE_NAME=$FILE_NAME" >> $GITHUB_ENV
+          tar -I zstd -cf ${{ github.workspace }}/$FILE_NAME .
 
       - name: 上传 ccache 工件 (供 gen_ccache.yml 合并发布)
         uses: actions/upload-artifact@v7
         with:
           name: ccache-${{ env.KERNEL_VERSION }}.${{ env.SUB_VERSION }}
-          path: ${{ github.workspace }}/ccache-${{ env.KERNEL_VERSION }}.${{ env.SUB_VERSION }}.tar.zst
+          path: ${{ github.workspace }}/${{ env.FILE_NAME }}
           retention-days: 1 # 仅作中转使用，1天后自动清理以节省空间
           archive: false
 
       - name: 将当前 out 目录打包为归档文件
-        if: always() # 无论编译成功与否，只要生成缓存就尝试打包
+        if: false
         run: |
           echo "正在使用 zstd 压缩 out 目录..."
           cd kernel_workspace/common/out
           tar -I zstd -cf ${{ github.workspace }}/out-${{ env.KERNEL_VERSION }}.${{ env.SUB_VERSION }}.tar.zst .
 
       - name: 上传 out 工件 (供 gen_ccache.yml 合并发布)
+        if: false
         uses: actions/upload-artifact@v7
         with:
           name: out-${{ env.KERNEL_VERSION }}.${{ env.SUB_VERSION }}

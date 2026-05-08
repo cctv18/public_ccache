@@ -290,7 +290,7 @@ jobs:
             - KSU分支：${{ github.event.inputs.unified_ksu_type }}
             - susfs支持：${{ github.event.inputs.unified_susfs_enable }}
           draft: false
-          prerelease: false
+          prerelease: true
           files: |
             ccache_release/*.tar.zst
             out_release/*.tar.zst

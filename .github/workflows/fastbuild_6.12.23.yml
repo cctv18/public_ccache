@@ -630,9 +630,9 @@ jobs:
               # 开启 systemd-coredump 支持
               echo "CONFIG_STATIC_USERMODEHELPER=n" >> ./arch/arm64/configs/gki_defconfig
               # 添加 Lindroid EVDI DRM 驱动
-              wget https://github.com/$GITHUB_REPOSITORY/raw/refs/heads/${{ env.KERNEL_VERSION }}/droidspaces_patch/evdi_drm.patch
-              patch -p1 -F 3 < evdi_drm.patch || true
-              echo "CONFIG_DRM_LINDROID_EVDI=y" >> ./arch/arm64/configs/gki_defconfig
+              # wget https://github.com/$GITHUB_REPOSITORY/raw/refs/heads/${{ env.KERNEL_VERSION }}/droidspaces_patch/evdi_drm.patch
+              # patch -p1 -F 3 < evdi_drm.patch || true
+              # echo "CONFIG_DRM_LINDROID_EVDI=y" >> ./arch/arm64/configs/gki_defconfig
             fi
           fi
 

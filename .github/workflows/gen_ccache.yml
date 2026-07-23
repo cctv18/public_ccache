@@ -19,6 +19,11 @@ on:
         required: true
         type: boolean
         default: false
+      unified_disable_old_ccache:
+        description: '是否统一禁用旧缓存'
+        required: true
+        type: boolean
+        default: true
       unified_droidspaces:
         description: '是否统一开启 Droidspaces 支持'
         required: true
@@ -41,7 +46,7 @@ jobs:
       susfs_enable: ${{ inputs.unified_susfs_enable }}
       droidspaces_enable: ${{ inputs.unified_droidspaces }}
       ccache_update: true
-      disable_old_ccache: false
+      disable_old_ccache: ${{ inputs.unified_disable_old_ccache }}
     secrets: inherit
 
   build_6_1_75:
@@ -51,7 +56,7 @@ jobs:
       susfs_enable: ${{ inputs.unified_susfs_enable }}
       droidspaces_enable: ${{ inputs.unified_droidspaces }}
       ccache_update: true
-      disable_old_ccache: false
+      disable_old_ccache: ${{ inputs.unified_disable_old_ccache }}
     secrets: inherit
 
   build_6_1_115:
@@ -61,7 +66,7 @@ jobs:
       susfs_enable: ${{ inputs.unified_susfs_enable }}
       droidspaces_enable: ${{ inputs.unified_droidspaces }}
       ccache_update: true
-      disable_old_ccache: false
+      disable_old_ccache: ${{ inputs.unified_disable_old_ccache }}
     secrets: inherit
 
   build_6_1_118:
@@ -71,7 +76,7 @@ jobs:
       susfs_enable: ${{ inputs.unified_susfs_enable }}
       droidspaces_enable: ${{ inputs.unified_droidspaces }}
       ccache_update: true
-      disable_old_ccache: false
+      disable_old_ccache: ${{ inputs.unified_disable_old_ccache }}
     secrets: inherit
 
   build_6_1_128:
@@ -81,7 +86,7 @@ jobs:
       susfs_enable: ${{ inputs.unified_susfs_enable }}
       droidspaces_enable: ${{ inputs.unified_droidspaces }}
       ccache_update: true
-      disable_old_ccache: false
+      disable_old_ccache: ${{ inputs.unified_disable_old_ccache }}
     secrets: inherit
 
   build_6_1_134:
@@ -91,7 +96,7 @@ jobs:
       susfs_enable: ${{ inputs.unified_susfs_enable }}
       droidspaces_enable: ${{ inputs.unified_droidspaces }}
       ccache_update: true
-      disable_old_ccache: false
+      disable_old_ccache: ${{ inputs.unified_disable_old_ccache }}
     secrets: inherit
 
   build_6_1_141:
@@ -101,7 +106,7 @@ jobs:
       susfs_enable: ${{ inputs.unified_susfs_enable }}
       droidspaces_enable: ${{ inputs.unified_droidspaces }}
       ccache_update: true
-      disable_old_ccache: false
+      disable_old_ccache: ${{ inputs.unified_disable_old_ccache }}
     secrets: inherit
 
   # --- 6.6 系列 ---
@@ -112,7 +117,7 @@ jobs:
       susfs_enable: ${{ inputs.unified_susfs_enable }}
       droidspaces_enable: ${{ inputs.unified_droidspaces }}
       ccache_update: true
-      disable_old_ccache: false
+      disable_old_ccache: ${{ inputs.unified_disable_old_ccache }}
     secrets: inherit
 
   build_6_6_50:
@@ -122,7 +127,7 @@ jobs:
       susfs_enable: ${{ inputs.unified_susfs_enable }}
       droidspaces_enable: ${{ inputs.unified_droidspaces }}
       ccache_update: true
-      disable_old_ccache: false
+      disable_old_ccache: ${{ inputs.unified_disable_old_ccache }}
     secrets: inherit
 
   build_6_6_56:
@@ -132,7 +137,7 @@ jobs:
       susfs_enable: ${{ inputs.unified_susfs_enable }}
       droidspaces_enable: ${{ inputs.unified_droidspaces }}
       ccache_update: true
-      disable_old_ccache: false
+      disable_old_ccache: ${{ inputs.unified_disable_old_ccache }}
     secrets: inherit
 
   build_6_6_57:
@@ -142,7 +147,7 @@ jobs:
       susfs_enable: ${{ inputs.unified_susfs_enable }}
       droidspaces_enable: ${{ inputs.unified_droidspaces }}
       ccache_update: true
-      disable_old_ccache: false
+      disable_old_ccache: ${{ inputs.unified_disable_old_ccache }}
     secrets: inherit
 
   build_6_6_66:
@@ -152,7 +157,7 @@ jobs:
       susfs_enable: ${{ inputs.unified_susfs_enable }}
       droidspaces_enable: ${{ inputs.unified_droidspaces }}
       ccache_update: true
-      disable_old_ccache: false
+      disable_old_ccache: ${{ inputs.unified_disable_old_ccache }}
     secrets: inherit
 
   build_6_6_89:
@@ -162,7 +167,7 @@ jobs:
       susfs_enable: ${{ inputs.unified_susfs_enable }}
       droidspaces_enable: ${{ inputs.unified_droidspaces }}
       ccache_update: true
-      disable_old_ccache: false
+      disable_old_ccache: ${{ inputs.unified_disable_old_ccache }}
     secrets: inherit
 
   build_6_6_89_mtk:
@@ -172,7 +177,7 @@ jobs:
       susfs_enable: ${{ inputs.unified_susfs_enable }}
       droidspaces_enable: ${{ inputs.unified_droidspaces }}
       ccache_update: true
-      disable_old_ccache: false
+      disable_old_ccache: ${{ inputs.unified_disable_old_ccache }}
     secrets: inherit
 
   # --- 6.12 系列 ---
@@ -183,7 +188,7 @@ jobs:
       susfs_enable: ${{ inputs.unified_susfs_enable }}
       droidspaces_enable: ${{ inputs.unified_droidspaces }}
       ccache_update: true
-      disable_old_ccache: false
+      disable_old_ccache: ${{ inputs.unified_disable_old_ccache }}
     secrets: inherit
 
   build_6_12_23_mtk:
@@ -193,7 +198,7 @@ jobs:
       susfs_enable: ${{ inputs.unified_susfs_enable }}
       droidspaces_enable: ${{ inputs.unified_droidspaces }}
       ccache_update: true
-      disable_old_ccache: false
+      disable_old_ccache: ${{ inputs.unified_disable_old_ccache }}
     secrets: inherit
 
   build_6_12_23_gki:
@@ -203,7 +208,7 @@ jobs:
       susfs_enable: ${{ inputs.unified_susfs_enable }}
       droidspaces_enable: ${{ inputs.unified_droidspaces }}
       ccache_update: true
-      disable_old_ccache: false
+      disable_old_ccache: ${{ inputs.unified_disable_old_ccache }}
     secrets: inherit
 
   build_6_12_38:
@@ -213,7 +218,7 @@ jobs:
       susfs_enable: ${{ inputs.unified_susfs_enable }}
       droidspaces_enable: ${{ inputs.unified_droidspaces }}
       ccache_update: true
-      disable_old_ccache: false
+      disable_old_ccache: ${{ inputs.unified_disable_old_ccache }}
     secrets: inherit
 
   publish_ccache_release:

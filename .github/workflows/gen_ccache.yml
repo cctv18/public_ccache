@@ -221,6 +221,26 @@ jobs:
       disable_old_ccache: ${{ inputs.unified_disable_old_ccache }}
     secrets: inherit
 
+  build_6_12_58:
+    uses: ./.github/workflows/fastbuild_6.12.58.yml
+    with: 
+      ksu_type: ${{ inputs.unified_ksu_type }}
+      susfs_enable: ${{ inputs.unified_susfs_enable }}
+      droidspaces_enable: ${{ inputs.unified_droidspaces }}
+      ccache_update: true
+      disable_old_ccache: ${{ inputs.unified_disable_old_ccache }}
+    secrets: inherit
+
+  build_6_12_58_mtk:
+    uses: ./.github/workflows/fastbuild_6.12.58_mtk.yml
+    with: 
+      ksu_type: ${{ inputs.unified_ksu_type }}
+      susfs_enable: ${{ inputs.unified_susfs_enable }}
+      droidspaces_enable: ${{ inputs.unified_droidspaces }}
+      ccache_update: true
+      disable_old_ccache: ${{ inputs.unified_disable_old_ccache }}
+    secrets: inherit
+
   publish_ccache_release:
     needs: 
       - build_6_1_57
@@ -241,6 +261,8 @@ jobs:
       - build_6_12_23_mtk
       - build_6_12_23_gki
       - build_6_12_38
+      - build_6_12_58
+      - build_6_12_58_mtk
     if: ${{ !cancelled() }} 
     runs-on: ubuntu-latest
     permissions:

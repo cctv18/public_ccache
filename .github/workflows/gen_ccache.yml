@@ -180,6 +180,16 @@ jobs:
       disable_old_ccache: ${{ inputs.unified_disable_old_ccache }}
     secrets: inherit
 
+  build_6_6_118:
+    uses: ./.github/workflows/fastbuild_6.6.118.yml
+    with: 
+      ksu_type: ${{ inputs.unified_ksu_type }}
+      susfs_enable: ${{ inputs.unified_susfs_enable }}
+      droidspaces_enable: ${{ inputs.unified_droidspaces }}
+      ccache_update: true
+      disable_old_ccache: ${{ inputs.unified_disable_old_ccache }}
+    secrets: inherit
+
   # --- 6.12 系列 ---
   build_6_12_23:
     uses: ./.github/workflows/fastbuild_6.12.23.yml
@@ -257,6 +267,7 @@ jobs:
       - build_6_6_66
       - build_6_6_89
       - build_6_6_89_mtk
+      - build_6_6_118
       - build_6_12_23
       - build_6_12_23_mtk
       - build_6_12_23_gki

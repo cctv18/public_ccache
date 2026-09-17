@@ -1,12 +1,12 @@
-name: 加速版构建 6.12.68 米/加通用GKI内核
+name: 加速版构建 6.12.69 米/加通用GKI内核
 
 env:
   TZ: Asia/Shanghai
   ANDROID_VERSION: 'android16'
   KERNEL_VERSION: '6.12'
-  SUB_VERSION: '68_gki'
+  SUB_VERSION: '69_gki'
   KERNEL_NAME: 'android16-5-ga8f88ad96df3-ab13929693-4k'
-  CCACHE_KEY: ccache-ecsv3-gki-6.12.68
+  CCACHE_KEY: ccache-ecsv3-gki-6.12.69
 
 on:
   workflow_dispatch:

@@ -251,8 +251,8 @@ jobs:
       disable_old_ccache: ${{ inputs.unified_disable_old_ccache }}
     secrets: inherit
 
-  build_6_12_68_gki:
-    uses: ./.github/workflows/fastbuild_6.12.68_gki.yml
+  build_6_12_69_gki:
+    uses: ./.github/workflows/fastbuild_6.12.69_gki.yml
     with: 
       ksu_type: ${{ inputs.unified_ksu_type }}
       susfs_enable: ${{ inputs.unified_susfs_enable }}
@@ -284,7 +284,7 @@ jobs:
       - build_6_12_38
       - build_6_12_58
       - build_6_12_58_mtk
-      - build_6_12_68_gki
+      - build_6_12_69_gki
     if: ${{ !cancelled() }} 
     runs-on: ubuntu-latest
     permissions:
